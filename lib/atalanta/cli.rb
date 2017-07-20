@@ -1,8 +1,12 @@
 require 'slop'
 
+require 'atalanta/executor'
+require 'ruby-progressbar'
+
 class Atalanta::CLI
   def initialize(argv)
     @argv = argv
+    @progress = ProgressBar.create(:format => '%a %B %p%% %t', :autostart => false, :autofinish => false)
   end
 
   def execute
@@ -27,15 +31,30 @@ class Atalanta::CLI
       exit 1
     end
 
+    executor = Atalanta::Executor.new(self)
     begin
       hosts = IO.readlines(opts[:hosts])
+      @progress.total = hosts.length
+      @progress.start
       puts "Processing #{hosts.length} hosts"
       hosts.each do |host|
-        # do something
+        executor.async_execute(host.chomp!, 'hostname')
       end
     rescue => e
-      puts "Failed to parse hosts file: #{opts[:hosts]}"
+      puts "Failed to parse hosts file: #{opts[:hosts]}: #{e.message}"
       exit 1
     end
+
+    values = executor.wait_for_completion
+
+    @progress.finish
+
+    values.each do |value|
+      puts value
+    end
+  end
+
+  def on_done(time, value, reason)
+    @progress.increment
   end
 end
