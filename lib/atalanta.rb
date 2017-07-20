@@ -1,0 +1,2 @@
+module Atalanta
+end

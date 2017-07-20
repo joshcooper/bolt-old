@@ -1,0 +1,7 @@
+.ruby-version
+Gemfile.lock
+Gemfile.local
+.bundle
+coverage
+.byebug_history
+.DS_Store

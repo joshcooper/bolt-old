@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'atalanta'
+require 'atalanta/cli'
+
+cli = Atalanta::CLI.new(ARGV)
+cli.execute
