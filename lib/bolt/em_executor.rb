@@ -5,6 +5,7 @@ class Bolt::EMExecutor
   trap(:INT) { EM.stop }
   trap(:TERM){ EM.stop }
 
+  # REMIND: we're not configuring host key verification
   OPTIONS = {
     :auth_methods => ['publickey'],
     :host_key     => 'ssh-rsa',

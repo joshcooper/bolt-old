@@ -4,6 +4,7 @@ class Bolt::SSH
   def initialize(host, user)
     @host = host
     @user = user
+    # REMIND: we're not configuring host key verification
     @options = {
       :auth_methods => ['publickey'],
       :host_key     => 'ssh-rsa',
