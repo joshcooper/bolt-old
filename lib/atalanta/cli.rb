@@ -1,7 +1,7 @@
 require 'slop'
 require 'benchmark'
 
-require 'atalanta/executor'
+require 'atalanta/thread_pool_executor'
 require 'atalanta/em_executor'
 require 'ruby-progressbar'
 
@@ -50,7 +50,7 @@ class Atalanta::CLI
       when 'async'
         executor = Atalanta::EMExecutor.new(self)
       when 'sync'
-        executor = Atalanta::Executor.new(self)
+        executor = Atalanta::ThreadPoolExecutor.new(self)
       else
         puts "Unknown executor '#{opts[:executor]}'"
         exit 1

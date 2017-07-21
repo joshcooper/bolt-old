@@ -1,7 +1,7 @@
 require 'concurrent'
 require 'atalanta/ssh'
 
-class Atalanta::Executor
+class Atalanta::ThreadPoolExecutor
   def initialize(observer)
     @pool = Concurrent::FixedThreadPool.new(Concurrent.processor_count * 4)
     @queue = Concurrent::Array.new
