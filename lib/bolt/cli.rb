@@ -56,7 +56,7 @@ class Bolt::CLI
         exit 1
       end
 
-      puts "Executing '#{command}' on #{hosts.length} hosts using #{executor.class}"
+      puts "Executing '#{command}' on #{hosts.length} hosts using #{executor.class}\n\n"
       values = executor.execute(hosts, command)
     end
 
