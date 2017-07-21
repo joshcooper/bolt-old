@@ -12,7 +12,7 @@ class Bolt::CLI
   end
 
   def execute
-    opts = Slop.parse(@argv) do |o|
+    opts = Slop.parse(@argv, suppress_errors: true) do |o|
       o.separator 'Commands:'
       o.separator '  <command>'
       o.separator 'Options:'
@@ -34,9 +34,12 @@ class Bolt::CLI
       exit 1
     end
 
-    command = opts.arguments.first
-    unless command
+    command = opts.arguments
+    if command && !command.empty?
+      command = command.join(' ')
+    else
       puts "A command must be specified, e.g. 'uname -a'\n\n"
+      puts opts
       exit 1
     end
 
