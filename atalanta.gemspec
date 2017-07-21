@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "net-ssh"
   spec.add_runtime_dependency "ruby-progressbar"
   spec.add_runtime_dependency "concurrent-ruby"
+  spec.add_runtime_dependency "em-ssh"
   #spec.add_runtime_dependency "colorize"
   #spec.add_runtime_dependency "net-ssh"
   #spec.add_runtime_dependency "winrm"

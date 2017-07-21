@@ -1,6 +1,8 @@
 require 'slop'
+require 'benchmark'
 
 require 'atalanta/executor'
+require 'atalanta/em_executor'
 require 'ruby-progressbar'
 
 class Atalanta::CLI
@@ -12,9 +14,10 @@ class Atalanta::CLI
   def execute
     opts = Slop.parse(@argv) do |o|
       o.separator 'Commands:'
-      o.separator ''
+      o.separator '  <command>'
       o.separator 'Options:'
-      o.string '--hosts', 'hosts file, one host per line'
+      o.string '--hosts', 'The hosts file, one host per line'
+      o.string '--executor', "The executor type 'async' or 'sync'", default: 'async'
       o.on '-v', '--version', 'print the version' do
         puts Atalanta::VERSION
         exit
@@ -31,30 +34,49 @@ class Atalanta::CLI
       exit 1
     end
 
-    executor = Atalanta::Executor.new(self)
-    begin
-      hosts = IO.readlines(opts[:hosts])
-      @progress.total = hosts.length
-      @progress.start
-      puts "Processing #{hosts.length} hosts"
-      hosts.each do |host|
-        executor.async_execute(host.chomp!, 'hostname')
-      end
-    rescue => e
-      puts "Failed to parse hosts file: #{opts[:hosts]}: #{e.message}"
+    command = opts.arguments.first
+    unless command
+      puts "A command must be specified, e.g. 'uname -a'\n\n"
       exit 1
     end
 
-    values = executor.wait_for_completion
+    hosts = get_hosts(opts)
+    @progress.total = hosts.length
+    @progress.start
+
+    values = nil
+    time = Benchmark.realtime do
+      case opts[:executor]
+      when 'async'
+        executor = Atalanta::EMExecutor.new(self)
+      when 'sync'
+        executor = Atalanta::Executor.new(self)
+      else
+        puts "Unknown executor '#{opts[:executor]}'"
+        exit 1
+      end
+
+      puts "Executing '#{command}' on #{hosts.length} hosts using #{executor.class}"
+      values = executor.execute(hosts, command)
+    end
 
     @progress.finish
 
     values.each do |value|
       puts value
     end
+
+    puts "\nProcessed #{hosts.length} commands in %.3f secs" % time.to_f
   end
 
-  def on_done(time, value, reason)
+  def get_hosts(opts)
+    IO.readlines(opts[:hosts]).map(&:chomp)
+  rescue => e
+    puts "Failed to parse hosts file: #{opts[:hosts]}: #{e.message}"
+    exit 1
+  end
+
+  def on_done
     @progress.increment
   end
 end

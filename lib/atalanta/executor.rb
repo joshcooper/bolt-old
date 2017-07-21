@@ -8,20 +8,30 @@ class Atalanta::Executor
     @observer = observer
   end
 
-  def async_execute(host, command)
-    future = Concurrent::Future.new(:executor => @executor) do
-      ssh = Atalanta::SSH.new(host, 'root')
-      ssh.connect
-      begin
-        output = ssh.execute(command)
-      ensure
-        ssh.disconnect
+  def execute(hosts, command)
+    hosts.each do |host|
+      future = Concurrent::Future.new(:executor => @executor) do
+        ssh = Atalanta::SSH.new(host, 'root')
+        ssh.connect
+        begin
+          output = ssh.execute(command)
+        ensure
+          ssh.disconnect
+        end
+        output
       end
-      output
+      @queue << future
+      future.add_observer(self, :on_done)
+      future.execute
     end
-    @queue << future
-    future.add_observer(@observer, :on_done)
-    future.execute
+
+    wait_for_completion
+  end
+
+  private
+
+  def on_done(time, value, reason)
+    @observer.on_done
   end
 
   def wait_for_completion
