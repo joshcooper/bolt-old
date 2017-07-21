@@ -1,7 +1,7 @@
 require 'concurrent'
-require 'atalanta/ssh'
+require 'bolt/ssh'
 
-class Atalanta::ThreadPoolExecutor
+class Bolt::ThreadPoolExecutor
   def initialize(observer)
     @pool = Concurrent::FixedThreadPool.new(Concurrent.processor_count * 4)
     @queue = Concurrent::Array.new
@@ -11,7 +11,7 @@ class Atalanta::ThreadPoolExecutor
   def execute(hosts, command)
     hosts.each do |host|
       future = Concurrent::Future.new(:executor => @executor) do
-        ssh = Atalanta::SSH.new(host, 'root')
+        ssh = Bolt::SSH.new(host, 'root')
         ssh.connect
         begin
           output = ssh.execute(command)

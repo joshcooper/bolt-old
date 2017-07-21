@@ -1,7 +1,7 @@
 require 'eventmachine'
 require 'em-ssh'
 
-class Atalanta::EMExecutor
+class Bolt::EMExecutor
   trap(:INT) { EM.stop }
   trap(:TERM){ EM.stop }
 

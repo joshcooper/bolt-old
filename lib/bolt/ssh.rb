@@ -1,6 +1,6 @@
 require 'net/ssh'
 
-class Atalanta::SSH
+class Bolt::SSH
   def initialize(host, user)
     @host = host
     @user = user

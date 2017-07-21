@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'atalanta/version'
+require 'bolt/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "atalanta"
-  spec.version       = Atalanta::VERSION
+  spec.name          = "Bolt"
+  spec.version       = Bolt::VERSION
   spec.authors       = ["Josh Cooper"]
   spec.email         = ["josh@puppet.com"]
 
@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Execute Tasks}
   spec.description   = %q{Execute Tasks}
-  spec.homepage      = "https://github.com/joshcooper/atalanta"
+  spec.homepage      = "https://github.com/joshcooper/bolt"
   spec.license       = "Apache2"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }

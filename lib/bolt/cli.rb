@@ -1,11 +1,11 @@
 require 'slop'
 require 'benchmark'
 
-require 'atalanta/thread_pool_executor'
-require 'atalanta/em_executor'
+require 'bolt/thread_pool_executor'
+require 'bolt/em_executor'
 require 'ruby-progressbar'
 
-class Atalanta::CLI
+class Bolt::CLI
   def initialize(argv)
     @argv = argv
     @progress = ProgressBar.create(:format => '%a %B %p%% %t', :autostart => false, :autofinish => false)
@@ -19,7 +19,7 @@ class Atalanta::CLI
       o.string '--hosts', 'The hosts file, one host per line'
       o.string '--executor', "The executor type 'async' or 'sync'", default: 'async'
       o.on '-v', '--version', 'print the version' do
-        puts Atalanta::VERSION
+        puts Bolt::VERSION
         exit
       end
       o.on '-h', '--help' do
@@ -48,9 +48,9 @@ class Atalanta::CLI
     time = Benchmark.realtime do
       case opts[:executor]
       when 'async'
-        executor = Atalanta::EMExecutor.new(self)
+        executor = Bolt::EMExecutor.new(self)
       when 'sync'
-        executor = Atalanta::ThreadPoolExecutor.new(self)
+        executor = Bolt::ThreadPoolExecutor.new(self)
       else
         puts "Unknown executor '#{opts[:executor]}'"
         exit 1
