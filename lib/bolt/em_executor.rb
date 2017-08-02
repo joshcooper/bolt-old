@@ -33,14 +33,10 @@ class Bolt::EMExecutor < Bolt::Executor
           end
         end
 
-        conns = {}
         hosts.each do |host|
-          connection = conns[host]
-          unless connection
-            connection = EM::Ssh.start(host, 'root', OPTIONS)
-            conns[host] = connection
-          end
+          connection = EM::Ssh.start(host, 'root', OPTIONS)
 
+          # are we overwriting the old errback/callback, or are we appending
           connection.errback do |err|
             @results << "#{host}: #{err} (#{err.class})"
             check[]
