@@ -1,7 +1,7 @@
 require 'eventmachine'
 require 'em-ssh'
 
-class Bolt::EMExecutor
+class Bolt::EMExecutor < Bolt::Executor
   trap(:INT) { EM.stop }
   trap(:TERM){ EM.stop }
 
@@ -14,7 +14,7 @@ class Bolt::EMExecutor
   }
 
   def initialize(observer)
-    @observer = observer
+    super
     @results = []
   end
 

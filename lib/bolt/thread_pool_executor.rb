@@ -1,11 +1,11 @@
 require 'concurrent'
 require 'bolt/ssh'
 
-class Bolt::ThreadPoolExecutor
+class Bolt::ThreadPoolExecutor < Bolt::Executor
   def initialize(observer)
+    super
     @pool = Concurrent::FixedThreadPool.new(Concurrent.processor_count * 4)
     @queue = Concurrent::Array.new
-    @observer = observer
   end
 
   def execute(hosts, command)

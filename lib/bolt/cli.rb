@@ -1,8 +1,7 @@
 require 'slop'
 require 'benchmark'
 
-require 'bolt/thread_pool_executor'
-require 'bolt/em_executor'
+require 'bolt/executor'
 require 'ruby-progressbar'
 
 class Bolt::CLI
@@ -49,18 +48,14 @@ class Bolt::CLI
 
     values = nil
     time = Benchmark.realtime do
-      case opts[:executor]
-      when 'async'
-        executor = Bolt::EMExecutor.new(self)
-      when 'sync'
-        executor = Bolt::ThreadPoolExecutor.new(self)
+      executor = Bolt::Executor.create(opts[:executor], self)
+      if executor
+        puts "Executing '#{command}' on #{hosts.length} hosts using #{executor.class}\n\n"
+        values = executor.execute(hosts, command)
       else
-        puts "Unknown executor '#{opts[:executor]}'"
+        puts "Unknown executor '#{opts[:executor]}"
         exit 1
       end
-
-      puts "Executing '#{command}' on #{hosts.length} hosts using #{executor.class}\n\n"
-      values = executor.execute(hosts, command)
     end
 
     @progress.finish
