@@ -9,29 +9,35 @@ class Bolt::ThreadPoolExecutor < Bolt::Executor
   end
 
   def execute(hosts, command)
-    hosts.each do |host|
-      future = Concurrent::Future.new(:executor => @executor) do
-        ssh = Bolt::SSH.new(host, 'root')
-        ssh.connect
-        begin
-          output = ssh.execute(command)
-        ensure
-          ssh.disconnect
-        end
-        output
-      end
-      @queue << future
-      future.add_observer(self, :on_done)
-      future.execute
-    end
+    @observer.notify(:start, hosts.length)
 
-    wait_for_completion
+    begin
+      hosts.each do |host|
+        future = Concurrent::Future.new(:executor => @executor) do
+          ssh = Bolt::SSH.new(host, 'root')
+          ssh.connect
+          begin
+            output = ssh.execute(command)
+          ensure
+            ssh.disconnect
+          end
+          output
+        end
+        @queue << future
+        future.add_observer(self, :on_done)
+        future.execute
+      end
+
+      wait_for_completion
+    ensure
+      @observer.notify(:done)
+    end
   end
 
   private
 
   def on_done(time, value, reason)
-    @observer.on_done
+    @observer.notify(:increment)
   end
 
   def wait_for_completion

@@ -1,6 +1,11 @@
 require 'spec_helper'
 require 'bolt/cli'
 
+class NullUI
+  def notify(type, value = nil)
+  end
+end
+
 describe Bolt::CLI do
   it "prints the version and exits" do
     %w[-v --version].each do |arg|
@@ -35,7 +40,7 @@ describe Bolt::CLI do
       allow(executor).to receive(:execute).with(hosts, 'whoami').and_return(%w[root root root])
 
       expect {
-        cli = Bolt::CLI.new(%w[--hosts myhosts.txt whoami])
+        cli = Bolt::CLI.new(%w[--hosts myhosts.txt whoami], NullUI.new)
         cli.execute
       }.to have_printed(/Processed 3 commands/)
     end

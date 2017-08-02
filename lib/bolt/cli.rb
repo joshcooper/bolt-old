@@ -2,12 +2,13 @@ require 'slop'
 require 'benchmark'
 
 require 'bolt/executor'
+require 'bolt/ui'
 require 'ruby-progressbar'
 
 class Bolt::CLI
-  def initialize(argv)
+  def initialize(argv, ui = Bolt::UI.new)
     @argv = argv
-    @progress = ProgressBar.create(:format => '%a %B %p%% %t', :autostart => false, :autofinish => false)
+    @ui = ui
   end
 
   def execute
@@ -43,12 +44,9 @@ class Bolt::CLI
     end
 
     hosts = get_hosts(opts)
-    @progress.total = hosts.length
-    @progress.start
-
     values = nil
     time = Benchmark.realtime do
-      executor = Bolt::Executor.create(opts[:executor], self)
+      executor = Bolt::Executor.create(opts[:executor], @ui)
       if executor
         puts "Executing '#{command}' on #{hosts.length} hosts using #{executor.class}\n\n"
         values = executor.execute(hosts, command)
@@ -57,8 +55,6 @@ class Bolt::CLI
         exit 1
       end
     end
-
-    @progress.finish
 
     values.each do |value|
       puts value
@@ -72,9 +68,5 @@ class Bolt::CLI
   rescue => e
     puts "Failed to parse hosts file: #{opts[:hosts]}: #{e.message}"
     exit 1
-  end
-
-  def on_done
-    @progress.increment
   end
 end
