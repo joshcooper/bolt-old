@@ -5,7 +5,7 @@ class Bolt::ThreadPoolExecutor < Bolt::Executor
   def initialize(observer)
     super
     @pool = Concurrent::FixedThreadPool.new(Concurrent.processor_count * 4)
-    @queue = Concurrent::Array.new
+    @futures = Concurrent::Map.new
   end
 
   def execute(hosts, command)
@@ -23,7 +23,7 @@ class Bolt::ThreadPoolExecutor < Bolt::Executor
           end
           output
         end
-        @queue << future
+        @futures[host] = future
         future.add_observer(self, :on_done)
         future.execute
       end
@@ -41,14 +41,21 @@ class Bolt::ThreadPoolExecutor < Bolt::Executor
   end
 
   def wait_for_completion
-    @queue.each do |future|
+    @futures.each_pair do |host, future|
       future.wait
     end
 
-    @queue.map do |future|
-      future.value || "Error: #{future.reason}"
+    results = []
+    @futures.each_pair do |host, future|
+      results <<
+        if future.value
+          "#{host}: #{future.value}"
+        else
+          "#{host}: #{future.reason}"
+        end
     end
+    results
   ensure
-    @queue.each { |future| future.delete_observers }
+    @futures.each_pair { |host, future| future.delete_observers }
   end
 end
