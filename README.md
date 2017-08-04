@@ -25,8 +25,8 @@ systems using ssh and winrm.
 Execute a command:
 
     $ bolt exec --nodes harpo zeppo command='whereami'
-    harpo: /dev/pts/0 /root nqk0hh22thtlm6r 10.32.118.6
-    zeppo: /dev/pts/0 /root l4cnecz1pqlzotn 10.32.115.201
+    harpo: /dev/pts/0 /root harpo 10.32.118.6
+    zeppo: /dev/pts/0 /root zeppo 10.32.115.201
 
 
 ## Contributing
